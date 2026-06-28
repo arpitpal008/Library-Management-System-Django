@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import timedelta
+
 from .models import Book, Student, IssueBook
 from .forms import BookForm, StudentForm, IssueBookForm
+
 
 # Home Page
 def home(request):
@@ -8,6 +15,7 @@ def home(request):
 
 
 # Book List
+@login_required
 def book_list(request):
     query = request.GET.get('q')
 
@@ -21,11 +29,13 @@ def book_list(request):
     })
 
 # Add Book
+@login_required
 def add_book(request):
     if request.method == 'POST':
         form = BookForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Book added successfully.")
             return redirect('book_list')
     else:
         form = BookForm()
@@ -34,6 +44,7 @@ def add_book(request):
 
 
 # Edit Book
+@login_required
 def edit_book(request, id):
     book = get_object_or_404(Book, id=id)
 
@@ -48,7 +59,7 @@ def edit_book(request, id):
     return render(request, 'library/books/add_book.html', {'form': form})
 
 
-
+@login_required
 def delete_book(request, id):
     book = get_object_or_404(Book, id=id)
     book.delete()
@@ -56,12 +67,14 @@ def delete_book(request, id):
 
 
 # Student List
+@login_required
 def student_list(request):
     students = Student.objects.all()
     return render(request, 'library/students/student_list.html', {'students': students})
 
 
 # Add Student
+@login_required
 def add_student(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -75,6 +88,7 @@ def add_student(request):
 
 
 # Edit Student
+@login_required
 def edit_student(request, id):
     student = get_object_or_404(Student, id=id)
 
@@ -90,18 +104,31 @@ def edit_student(request, id):
 
 
 # Delete Student
+@login_required
 def delete_student(request, id):
     student = get_object_or_404(Student, id=id)
     student.delete()
     return redirect('student_list')
 
-
+@login_required
 def issue_book(request):
     if request.method == "POST":
         form = IssueBookForm(request.POST)
 
         if form.is_valid():
+
+            already_issued = IssueBook.objects.filter(
+                student=form.cleaned_data['student'],
+                book=form.cleaned_data['book'],
+                is_returned=False
+            ).exists()
+
+            if already_issued:
+                messages.error(request, "This student has already issued this book.")
+                return redirect('issue_book')
+
             issue = form.save(commit=False)
+            issue.due_date = issue.issue_date + timedelta(days=7)
 
             # Check availability
             if issue.book.available > 0:
@@ -110,40 +137,51 @@ def issue_book(request):
 
                 issue.save()
 
+                messages.success(request, "Book issued successfully.")
                 return redirect('issue_list')
+
+            else:
+                messages.error(request, "Book is not available.")
+                return redirect('issue_book')
 
     else:
         form = IssueBookForm()
 
     return render(request, 'library/issue_book.html', {'form': form})
-
+@login_required
 def issue_list(request):
     issues = IssueBook.objects.all()
     return render(request, 'library/issue_list.html', {
         'issues': issues
     })
-    
-    
-    
-from django.utils import timezone
 
+@login_required
 def return_book(request, id):
     issue = get_object_or_404(IssueBook, id=id)
 
     if not issue.is_returned:
         issue.is_returned = True
-        issue.return_date = timezone.now()
+        issue.return_date = timezone.now().date()
 
+        # Fine Calculation
+        if issue.return_date > issue.due_date:
+            late_days = (issue.return_date - issue.due_date).days
+            issue.fine = late_days * 10
+        else:
+            issue.fine = 0
+
+        # Increase available books
         issue.book.available += 1
         issue.book.save()
 
         issue.save()
 
+        messages.success(request, "Book returned successfully.")
+
     return redirect('issue_list')
 
 
-from django.db.models import Sum
-
+@login_required
 def dashboard(request):
     total_books = Book.objects.count()
     total_students = Student.objects.count()

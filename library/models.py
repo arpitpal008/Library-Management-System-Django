@@ -25,8 +25,9 @@ class IssueBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
     issue_date = models.DateField(default=timezone.now)
+    due_date = models.DateField(null=True, blank=True)
     return_date = models.DateField(null=True, blank=True)
-
+    fine = models.PositiveIntegerField(default=0)
     is_returned = models.BooleanField(default=False)
 
     def __str__(self):

@@ -5,6 +5,11 @@
 {% block content %}
 
 <h2>Book List</h2>
+<div class="mb-3">
+    <a href="{% url 'add_book' %}" class="btn btn-success">
+        + Add Book
+    </a>
+</div>
 
 <form method="GET" class="mb-3">
     <div class="input-group">
