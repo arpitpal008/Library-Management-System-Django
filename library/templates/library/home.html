@@ -1,0 +1,41 @@
+{% extends 'library/base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+<div class="text-center">
+
+    <h1 class="display-4">📚 Library Management System</h1>
+
+    <p class="lead mt-3">
+        Welcome to Django Library Management System
+    </p>
+
+    <hr>
+
+    <div class="d-grid gap-3 col-6 mx-auto">
+
+        <a href="{% url 'book_list' %}" class="btn btn-primary btn-lg">
+            📚 Manage Books
+        </a>
+
+        <a href="{% url 'student_list' %}" class="btn btn-success btn-lg">
+            👨‍🎓 Manage Students
+        </a>
+
+        <a href="{% url 'issue_book' %}" class="btn btn-warning btn-lg">
+            📖 Issue Book
+        </a>
+
+        <a href="{% url 'issue_list' %}" class="btn btn-info btn-lg">
+            📋 Issued Books
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
