@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: library-management-system
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn library_project.wsgi:application"
