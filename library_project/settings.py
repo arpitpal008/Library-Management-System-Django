@@ -20,13 +20,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#628w9$0s9o)m^#6&9*(s&^zz$73l-^ga-4(5&h_&j4o$crcx('
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-local-dev-key")
 
+DEBUG = os.environ.get("DEBUG", "True") == "True"
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 # Application definition
 
@@ -127,8 +127,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'bloodofficial08@gmail.com'
-EMAIL_HOST_PASSWORD = 'ccmvwhecuttrlbrb'
-
+EMAIL_HOST_USER = os.environ.get("bloodofficial08@gmail.com")
+EMAIL_HOST_PASSWORD = os.environ.get("oyktpnlwxqcpswno")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_TIMEOUT = 30
