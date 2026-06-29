@@ -16,5 +16,5 @@ urlpatterns = [
     path('issue/list/', views.issue_list, name='issue_list'),
     path('return/<int:id>/', views.return_book, name='return_book'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('test-email/', views.test_email, name='test_email'),
+   
 ]

@@ -79,14 +79,36 @@ def student_list(request):
 def add_student(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
+
         if form.is_valid():
-            form.save()
+
+            student = form.save()
+
+            send_mail(
+                subject="👨‍🎓 New Student Added",
+                message=f"""
+Hello Admin,
+
+A new student has been added successfully.
+
+Student Name : {student.name}
+
+Regards,
+Library Management System
+""",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[settings.EMAIL_HOST_USER],
+                fail_silently=False,
+            )
+
+            messages.success(request, "Student added successfully.")
+
             return redirect('student_list')
+
     else:
         form = StudentForm()
 
     return render(request, 'library/students/add_student.html', {'form': form})
-
 
 # Edit Student
 @login_required
@@ -197,6 +219,28 @@ def return_book(request, id):
         issue.book.save()
 
         issue.save()
+        send_mail(
+    subject="📖 Book Returned Successfully",
+    message=f"""
+Hello Admin,
+
+A book has been returned successfully.
+
+Student Name : {issue.student.name}
+Book Name    : {issue.book.title}
+
+Return Date  : {issue.return_date}
+Due Date     : {issue.due_date}
+
+Fine         : ₹{issue.fine}
+
+Regards,
+Library Management System
+""",
+    from_email=settings.EMAIL_HOST_USER,
+    recipient_list=[settings.EMAIL_HOST_USER],
+    fail_silently=False,
+)
 
         messages.success(request, "Book returned successfully.")
 
@@ -222,16 +266,3 @@ def dashboard(request):
     }
 
     return render(request, 'library/dashboard.html', context)
-
-@login_required
-def test_email(request):
-    send_mail(
-        'Library Management Test',
-        'Congratulations! Your email setup is working.',
-        settings.EMAIL_HOST_USER,
-        [settings.EMAIL_HOST_USER],
-        fail_silently=False,
-    )
-
-    messages.success(request, "Test email sent successfully.")
-    return redirect('dashboard')
