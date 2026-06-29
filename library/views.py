@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 
 from .models import Book, Student, IssueBook
 from .forms import BookForm, StudentForm, IssueBookForm
-
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Home Page
 def home(request):
@@ -136,6 +137,27 @@ def issue_book(request):
                 issue.book.save()
 
                 issue.save()
+                
+                send_mail(
+    subject="📚 Book Issued Successfully",
+    message=f"""
+Hello Admin,
+
+A new book has been issued.
+
+Student Name : {issue.student.name}
+Book Name    : {issue.book.title}
+
+Issue Date   : {issue.issue_date}
+Due Date     : {issue.due_date}
+
+Regards,
+Library Management System
+""",
+    from_email=settings.EMAIL_HOST_USER,
+    recipient_list=[settings.EMAIL_HOST_USER],
+    fail_silently=False,
+)
 
                 messages.success(request, "Book issued successfully.")
                 return redirect('issue_list')
@@ -187,12 +209,29 @@ def dashboard(request):
     total_students = Student.objects.count()
     issued_books = IssueBook.objects.filter(is_returned=False).count()
     available_books = Book.objects.aggregate(total=Sum('available'))['total'] or 0
+    total_fine = IssueBook.objects.aggregate(total=Sum('fine'))['total'] or 0
+    recent_issues = IssueBook.objects.order_by('-issue_date')[:5]
 
     context = {
         'total_books': total_books,
         'total_students': total_students,
         'issued_books': issued_books,
         'available_books': available_books,
+        'total_fine': total_fine,
+        'recent_issues': recent_issues,
     }
 
     return render(request, 'library/dashboard.html', context)
+
+@login_required
+def test_email(request):
+    send_mail(
+        'Library Management Test',
+        'Congratulations! Your email setup is working.',
+        settings.EMAIL_HOST_USER,
+        [settings.EMAIL_HOST_USER],
+        fail_silently=False,
+    )
+
+    messages.success(request, "Test email sent successfully.")
+    return redirect('dashboard')

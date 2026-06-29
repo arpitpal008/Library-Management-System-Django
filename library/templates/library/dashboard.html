@@ -8,44 +8,151 @@ Dashboard
 
 <div class="container mt-4">
 
-    <h2 class="mb-4">📊 Dashboard</h2>
+    <h2 class="mb-4">📊 Library Dashboard</h2>
 
+    <!-- Summary Cards -->
     <div class="row">
 
-        <div class="col-md-3 mb-3">
-            <div class="card bg-primary text-white shadow">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white shadow border-0">
                 <div class="card-body text-center">
-                    <h5>Total Books</h5>
+                    <h5>📚 Total Books</h5>
                     <h2>{{ total_books }}</h2>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card bg-success text-white shadow">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white shadow border-0">
                 <div class="card-body text-center">
-                    <h5>Total Students</h5>
+                    <h5>👨‍🎓 Students</h5>
                     <h2>{{ total_students }}</h2>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card bg-warning text-dark shadow">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-dark shadow border-0">
                 <div class="card-body text-center">
-                    <h5>Issued Books</h5>
+                    <h5>📖 Issued Books</h5>
                     <h2>{{ issued_books }}</h2>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card bg-info text-white shadow">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white shadow border-0">
                 <div class="card-body text-center">
-                    <h5>Available Books</h5>
+                    <h5>✅ Available Copies</h5>
                     <h2>{{ available_books }}</h2>
                 </div>
             </div>
+        </div>
+
+    </div>
+
+    <!-- Recent Activity + Fine -->
+    <div class="row">
+
+        <div class="col-lg-8 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-dark text-white">
+                    📚 Recent Book Activity
+                </div>
+
+                <div class="card-body">
+
+                    <table class="table table-striped table-hover">
+
+                        <thead>
+
+                            <tr>
+                                <th>Student</th>
+                                <th>Book</th>
+                                <th>Issue Date</th>
+                                <th>Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for issue in recent_issues %}
+
+                            <tr>
+
+                                <td>{{ issue.student.name }}</td>
+                                <td>{{ issue.book.title }}</td>
+                                <td>{{ issue.issue_date }}</td>
+
+                                <td>
+
+                                    {% if issue.is_returned %}
+
+                                        <span class="badge bg-success">
+                                            Returned
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger">
+                                            Issued
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td colspan="4" class="text-center">
+
+                                    No Recent Activity
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Fine Card -->
+
+        <div class="col-lg-4 mb-4">
+
+            <div class="card bg-danger text-white shadow border-0">
+
+                <div class="card-body text-center">
+
+                    <h4>💰 Total Fine Collected</h4>
+
+                    <h1>₹{{ total_fine }}</h1>
+
+                    <hr>
+
+                    <p>
+                        Total Fine Collected
+                    </p>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
