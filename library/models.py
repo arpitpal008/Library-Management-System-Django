@@ -16,9 +16,9 @@ class Student(models.Model):
     student_id = models.CharField(max_length=20, unique=True)
     course = models.CharField(max_length=100)
     mobile = models.CharField(max_length=15)
-def __str__(self):
-    return self.name
 
+    def __str__(self):
+        return self.name
 
 class IssueBook(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
